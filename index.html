@@ -217,6 +217,9 @@ section{padding:100px 0}
 .guide-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:center}
 .guide .photo{border-radius:16px;aspect-ratio:4/5}
 .guide .photo:after{background:linear-gradient(180deg,rgba(0,28,32,.4),rgba(0,28,32,.9))}
+.guide .photo.natural img{filter:saturate(1.03) contrast(1.02)}
+.guide .photo.natural:after{background:linear-gradient(180deg,rgba(0,28,32,0) 48%,rgba(0,28,32,.5));mix-blend-mode:normal}
+.guide .photo.natural:before{background:radial-gradient(120% 90% at 70% 8%,rgba(213,242,90,.08),transparent 58%)}
 .guide p+p{margin-top:16px}
 .creds{display:flex;gap:28px;flex-wrap:wrap;margin-top:30px;padding-top:26px;border-top:1px solid var(--line-dark);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--canary)}
 @media(max-width:900px){.guide-grid{grid-template-columns:1fr;gap:38px}.guide .photo{aspect-ratio:3/2}}
@@ -446,18 +449,18 @@ footer span.meta{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text
 
 <section class="guide" id="guide">
   <div class="wrap guide-grid">
-    <div class="photo reveal">
-      <img src="https://images.unsplash.com/photo-1498060640552-89ed324842ea?fm=jpg&q=80&w=1400&auto=format&fit=crop" alt="A swimmer in open ocean at first light">
-      <span class="cap">Replace with your portrait</span>
+    <div class="photo natural reveal">
+      <img src="thibault.jpg" alt="Thibault Sagnier, founder and mental performance coach" width="1010" height="1200">
+      <span class="cap">Thibault Sagnier</span>
     </div>
     <div class="reveal">
       <span class="eyebrow on-dark" style="display:block;margin-bottom:18px">Your coach · Thibault Sagnier</span>
       <h2>Your coach has been<br>where you are.</h2>
       <p style="margin-top:18px">Founder, endurance athlete, mental performance coach. Thibault Sagnier runs a 7-figure digital marketing agency serving around 90 DTC brands, and coaches founders on the mental side of scaling.</p>
-      <p>He trained in mental performance under Thomas Sammut, who has prepared world-class athletes, and works with tools drawn from somatic practice, nervous-system regulation, and identity work.</p>
+      <p>He trained in mental performance under a mental coach to Olympic-level athletes, and works with tools drawn from somatic practice, nervous-system regulation, and identity work.</p>
       <p>His own edge was built exploring: Ironman races, mountain expeditions, the ocean.</p>
       <p>Thibault built this program because he knows, from the inside, what it feels like to keep growing a business while slowly losing the clarity, energy, and joy that started it. This is the route he wishes he'd had.</p>
-      <div class="creds"><span>Ironman</span><span>~90 DTC brands</span><span>Trained under Thomas Sammut</span><span>Biarritz</span></div>
+      <div class="creds"><span>Ironman</span><span>~90 DTC brands</span><span>Trained by an Olympic coach</span><span>Biarritz</span></div>
     </div>
   </div>
 </section>
