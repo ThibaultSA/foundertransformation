@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="only light">
 <meta name="theme-color" content="#E7E0D0">
-<title>The Invisible Limits Assessment — Founder Transformation</title>
+<title>The Invisible Limits Assessment · Founder Transformation</title>
 <meta name="description" content="See your invisible limits in 6 minutes. Discover your dominant founder profile, your secondary patterns, and your Founder Vitality Score.">
 <meta property="og:title" content="The Invisible Limits Assessment">
 <meta property="og:description" content="See your invisible limits in 6 minutes. Your dominant profile, your secondary patterns, and your Founder Vitality Score.">
@@ -159,11 +159,11 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;line-hei
   <section class="screen intro active" id="s-intro">
     <span class="pill">The Invisible Limits Assessment</span>
     <h1>First, see your<br><em>invisible limits</em>.</h1>
-    <p class="lead">Most founders don't need more strategies. They need fewer invisible limits — the beliefs, fears, and patterns quietly running the show.</p>
+    <p class="lead">Most founders don't need more strategies. They need fewer invisible limits: the beliefs, fears, and patterns quietly running the show.</p>
     <ul>
       <li><span class="t">1</span><div>Answer honestly. There are no right answers, only accurate ones.</div></li>
       <li><span class="t">2</span><div>You'll get your <b>dominant profile</b>, your secondary patterns, and your <b>Founder Vitality Score</b>.</div></li>
-      <li><span class="t">3</span><div>Take it again in week 9 — the distance between the two is your proof.</div></li>
+      <li><span class="t">3</span><div>Take it again in week 9. The distance between the two is your proof.</div></li>
     </ul>
     <button class="btn lime" id="startBtn">Begin the assessment →</button>
     <div class="meta">28 questions · about 6 minutes · your answers stay private</div>
@@ -172,7 +172,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;line-hei
   <!-- QUESTION -->
   <section class="screen qwrap" id="s-question">
     <div class="qnum" id="qnum">Question 1</div>
-    <h2 id="qtext">—</h2>
+    <h2 id="qtext"></h2>
     <div class="scale" id="scale"></div>
     <div class="qnav">
       <button class="back" id="backBtn">← Back</button>
@@ -184,7 +184,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;line-hei
   <section class="screen cap" id="s-capture">
     <span class="pill">Almost there</span>
     <h2 style="margin-top:18px">Where should we send your profile?</h2>
-    <p class="lead">Your results are ready. Enter your details to reveal your profile — we'll also send you a copy and the occasional note from Thibault. No spam, unsubscribe anytime.</p>
+    <p class="lead">Your results are ready. Enter your details to reveal your profile. We'll also send you a copy and the occasional note from Thibault. No spam, unsubscribe anytime.</p>
     <div class="field">
       <label for="fname">First name</label>
       <input type="text" id="fname" autocomplete="given-name" placeholder="Your first name">
@@ -207,9 +207,9 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;line-hei
 
       <div class="dominant">
         <div class="tag">Dominant profile</div>
-        <div class="name" id="domName">—</div>
-        <div class="one" id="domOne">—</div>
-        <div class="desc" id="domDesc">—</div>
+        <div class="name" id="domName"></div>
+        <div class="one" id="domOne"></div>
+        <div class="desc" id="domDesc"></div>
         <div class="band" id="domBand">High</div>
       </div>
 
@@ -221,20 +221,20 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;line-hei
 
       <div class="block">
         <h3>Founder Vitality Score</h3>
-        <p class="sub">A read on the clarity, energy, and enjoyment you're operating with right now. This is your baseline — the number to move.</p>
+        <p class="sub">A read on the clarity, energy, and enjoyment you're operating with right now. This is your baseline: the number to move.</p>
         <div class="vit">
           <div class="gauge"><div class="num" id="vitNum">0</div><div class="den">out of 100</div></div>
           <div class="meter">
-            <div class="word" id="vitWord">—</div>
+            <div class="word" id="vitWord"></div>
             <div class="track"><i class="fill" id="vitFill"></i></div>
-            <div class="note" id="vitNote">—</div>
+            <div class="note" id="vitNote"></div>
           </div>
         </div>
       </div>
 
       <div class="cta-final">
         <h3>This is the map. The program is the expedition.</h3>
-        <p>Founder Transformation is 9 weeks working on the person behind the company — so the ceiling moves with you.</p>
+        <p>Founder Transformation is 9 weeks working on the person behind the company, so the ceiling moves with you.</p>
         <a class="btn lime" href="/#join">Apply for the founding cohort →</a>
       </div>
 
@@ -247,7 +247,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;line-hei
 
 <script>
 /* ============================================================
-   SUPABASE CONFIG — fill these in once your project is ready.
+   SUPABASE CONFIG: fill these in once your project is ready.
    Leave empty to run the assessment without saving leads.
    Table expected: assessment_leads (see setup notes).
    ============================================================ */
@@ -257,21 +257,21 @@ const SUPABASE_ANON_KEY = "";   // your project's anon/public key
 /* ---- Profiles ---- */
 const PROFILES = {
   perfectionist:{name:"The Perfectionist", one:"Never ships until it's flawless.",
-    desc:"Your standard is your superpower and your bottleneck. It protects quality — and it also delays launches, keeps work on your desk, and turns ‘done’ into a moving target. Your growth edge: learning where 90% shipped beats 100% imagined."},
+    desc:"Your standard is your superpower and your bottleneck. It protects quality, and it also delays launches, keeps work on your desk, and turns ‘done’ into a moving target. Your growth edge: learning where 90% shipped beats 100% imagined."},
   controller:{name:"The Controller", one:"Every decision runs through them.",
-    desc:"You've scaled on the strength of your own judgment — and that same reflex is now the ceiling. When every decision routes through you, the company can only move as fast as your attention. Your growth edge: building the trust and systems that let the business run without your hand on every lever."},
+    desc:"You've scaled on the strength of your own judgment, and that same reflex is now the ceiling. When every decision routes through you, the company can only move as fast as your attention. Your growth edge: building the trust and systems that let the business run without your hand on every lever."},
   performer:{name:"The Performer", one:"Self-worth tied to results.",
     desc:"You perform at a high level because results feel personal. The cost: your sense of self rides the same rollercoaster as your metrics, which makes hard seasons far heavier than they need to be. Your growth edge: anchoring your worth somewhere your results can't reach."},
   pleaser:{name:"The Pleaser", one:"Says yes, then resents it.",
     desc:"Your attentiveness to others has built loyalty and a team that feels seen. The cost: yeses you resent, boundaries you don't set, and a calendar shaped by everyone's priorities but yours. Your growth edge: protecting your ‘no’ so your ‘yes’ means something."},
   overthinker:{name:"The Overthinker", one:"Analyzes long past the point of action.",
-    desc:"You see angles others miss — and you also keep circling long after the answer is clear. Analysis quietly becomes a sophisticated form of delay. Your growth edge: setting a decision threshold and acting before certainty arrives."},
+    desc:"You see angles others miss, and you also keep circling long after the answer is clear. Analysis quietly becomes a sophisticated form of delay. Your growth edge: setting a decision threshold and acting before certainty arrives."},
   drifter:{name:"The Drifter", one:"Busy, but without a chosen direction.",
     desc:"You're capable and busy, but your direction is set more by what lands than by what you've chosen. Motion without a chosen destination quietly caps your growth. Your growth edge: choosing a direction clear enough to say no to everything off it."},
   avoider:{name:"The Avoider", one:"Fills the day, dodges the hard thing.",
-    desc:"You're productive — often as a way to stay away from the one thing that actually matters. The hard conversation or the real decision keeps getting outrun by smaller tasks. Your growth edge: moving toward the discomfort your day is organized to avoid."},
+    desc:"You're productive, often as a way to stay away from the one thing that actually matters. The hard conversation or the real decision keeps getting outrun by smaller tasks. Your growth edge: moving toward the discomfort your day is organized to avoid."},
   prover:{name:"The Prover", one:"Nothing is ever quite enough.",
-    desc:"The drive that got you here runs on proving — and the target keeps moving, so arrival never comes. Achievement brings relief, not fullness, then the next need. Your growth edge: building from ‘enough’ instead of chasing it."}
+    desc:"The drive that got you here runs on proving, and the target keeps moving, so arrival never comes. Achievement brings relief, not fullness, then the next need. Your growth edge: building from ‘enough’ instead of chasing it."}
 };
 
 /* ---- Questions: 3 per profile + 4 vitality. Likert 1-5. ---- */
@@ -293,7 +293,7 @@ const QUESTIONS = [
   {p:"drifter",       t:"I react to whatever lands in front of me more than to a direction I've set."},
   {p:"avoider",       t:"There's an important conversation or decision I keep postponing."},
   {v:"energy",        t:"I have the energy I want for my work and my life.", reverse:true},
-  {p:"prover",        t:"I'm driven by a need to prove something — to others, or to myself."},
+  {p:"prover",        t:"I'm driven by a need to prove something, to others or to myself."},
   {p:"perfectionist", t:"‘Good enough’ feels like a compromise I resist making."},
   {p:"controller",    t:"When I step back from the details, I feel anxious about what might slip."},
   {p:"performer",     t:"When things go well I feel valuable; when they don't, I feel small."},
@@ -302,7 +302,7 @@ const QUESTIONS = [
   {p:"overthinker",   t:"I gather more information as a way of delaying the decision."},
   {p:"drifter",       t:"If asked where I'm deliberately heading in three years, I'd struggle to answer."},
   {p:"avoider",       t:"I stay busy partly to avoid what actually matters."},
-  {p:"prover",        t:"Hitting a goal brings relief more than satisfaction — then I need the next one."},
+  {p:"prover",        t:"Hitting a goal brings relief more than satisfaction, then I need the next one."},
   {v:"focus",         t:"I can focus deeply without constantly feeling pulled away.", reverse:true}
 ];
 
@@ -386,7 +386,7 @@ function computeResults(){
 function band(pct){ if(pct>=67)return'High'; if(pct>=40)return'Moderate'; return'Low'; }
 function vitBand(v){
   if(v>=80)return{w:"Thriving", n:"You're operating with real clarity and energy. The work now is to protect it and aim it."};
-  if(v>=60)return{w:"Steady", n:"You're holding up — but ‘steady’ often hides a slow drain. There's another gear available."};
+  if(v>=60)return{w:"Steady", n:"You're holding up, but ‘steady’ often hides a slow drain. There's another gear available."};
   if(v>=40)return{w:"Strained", n:"You're pushing through on willpower more than vitality. This is exactly where the work pays off fastest."};
   return{w:"Running on reserves", n:"You're running the business on fumes. The good news: this number is the one that moves first, and fastest."};
 }
@@ -433,7 +433,7 @@ function renderResult(name){
 /* ---- Save lead to Supabase (optional) ---- */
 async function saveLead(payload){
   if(!SUPABASE_URL || !SUPABASE_ANON_KEY){
-    console.warn('[assessment] Supabase not configured — lead not saved:', payload);
+    console.warn('[assessment] Supabase not configured, lead not saved:', payload);
     return;
   }
   try{
