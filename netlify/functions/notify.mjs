@@ -2,11 +2,10 @@
  * Netlify Function: send transactional emails via Resend.
  * Called by /assessment and /apply after the lead is saved to Supabase.
  *
- * Env vars (set in Netlify → Site settings → Environment variables):
+ * Env vars (Netlify -> Site configuration -> Environment variables):
  *   RESEND_API_KEY  (required, secret)
  *   FROM_EMAIL      e.g. "Founder Transformation <hello@foundertransformation.co>"
- *                   (the domain must be verified in Resend)
- *   NOTIFY_EMAIL    where founder notifications go, e.g. "thibaultsagnier@gmail.com"
+ *   NOTIFY_EMAIL    where founder notifications go
  */
 
 const PROFILES = {
@@ -28,78 +27,137 @@ const json = (obj, status = 200) =>
 const esc = (s = "") =>
   String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-const profName = k => (PROFILES[k]?.name || k || "—");
+const profName = k => (PROFILES[k]?.name || k || "");
 
-/* Branded email shell */
-function wrap(inner) {
-  return `<!DOCTYPE html><html><body style="margin:0;background:#E7E0D0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#001C20">
-  <div style="max-width:560px;margin:0 auto;padding:28px 22px">
-    <div style="font-family:Georgia,'Times New Roman',serif;font-size:20px;color:#001C20;margin-bottom:22px">Founder <span style="color:#5D6763">Transformation</span></div>
-    <div style="background:#F1ECE0;border:1px solid rgba(0,28,32,.12);border-radius:16px;padding:30px 26px">${inner}</div>
-    <div style="text-align:center;color:#9CACA6;font-size:12px;margin-top:20px">Founder Transformation · <a href="${SITE}" style="color:#5D6763">foundertransformation.co</a></div>
-  </div></body></html>`;
+/* ---------- Email building blocks (table-based, inline styles) ---------- */
+const SERIF = "Georgia,'Times New Roman',serif";
+const SANS  = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
+const MONO  = "'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace";
+
+function shell(inner) {
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#E7E0D0;-webkit-font-smoothing:antialiased;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#E7E0D0;">
+  <tr><td align="center" style="padding:34px 16px;">
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:560px;width:100%;">
+      <tr><td style="background:#001C20;border-radius:18px 18px 0 0;border-bottom:2px solid #D5F25A;padding:24px 34px;">
+        <span style="font-family:${SERIF};font-size:19px;color:#F1ECE0;letter-spacing:.2px;">Founder <span style="color:#8b9a94;">Transformation</span></span>
+      </td></tr>
+      <tr><td style="background:#F1ECE0;padding:40px 34px 36px;">${inner}</td></tr>
+      <tr><td style="background:#F1ECE0;border-radius:0 0 18px 18px;border-top:1px solid rgba(0,28,32,.08);padding:22px 34px;text-align:center;">
+        <span style="font-family:${SANS};font-size:12px;color:#9aa39e;">Founder Transformation &middot; <a href="${SITE}" style="color:#6b746f;text-decoration:none;">foundertransformation.co</a></span>
+      </td></tr>
+    </table>
+  </td></tr>
+</table></body></html>`;
 }
-const h1 = t => `<div style="font-family:Georgia,serif;font-size:26px;line-height:1.15;color:#001C20;margin:0 0 14px">${t}</div>`;
-const p  = t => `<p style="font-size:15px;line-height:1.6;color:#3a443f;margin:0 0 14px">${t}</p>`;
-const btn = (href, label) => `<a href="${href}" style="display:inline-block;background:#001C20;color:#F1ECE0;text-decoration:none;font-size:14px;font-weight:600;padding:13px 24px;border-radius:999px;margin-top:6px">${label}</a>`;
 
-/* ---- Assessment emails ---- */
-function assessmentLeadEmail(from, d) {
-  const dom = PROFILES[d.dominant_profile] || { name: profName(d.dominant_profile), one: "" };
-  const secs = (d.secondary_profiles || []).map(profName).filter(Boolean);
-  const secLine = secs.length ? p(`Your secondary patterns: <b>${esc(secs.join(", "))}</b>.`) : "";
-  const vit = (d.vitality_score != null) ? p(`Your Founder Vitality Score: <b>${esc(d.vitality_score)}/100</b> — your baseline to move.`) : "";
+const eyebrow = t => `<div style="font-family:${MONO};font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#7c8a52;margin:0 0 15px;">${t}</div>`;
+const h1 = t => `<h1 style="font-family:${SERIF};font-weight:normal;font-size:27px;line-height:1.18;color:#001C20;margin:0 0 18px;">${t}</h1>`;
+const p  = t => `<p style="font-family:${SANS};font-size:15px;line-height:1.62;color:#3a443f;margin:0 0 16px;">${t}</p>`;
+
+function button(href, label) {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:10px 0 2px;"><tr>
+    <td align="center" bgcolor="#D5F25A" style="border-radius:999px;">
+      <a href="${href}" style="display:inline-block;font-family:${SANS};font-size:14px;font-weight:bold;color:#001C20;text-decoration:none;padding:14px 28px;border-radius:999px;">${label}</a>
+    </td></tr></table>`;
+}
+
+function resultCard(dom, secsStr, vit) {
+  const hasMeta = secsStr || (vit != null);
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 22px;"><tr>
+    <td style="background:#001C20;border-radius:14px;padding:26px 26px;">
+      <div style="font-family:${MONO};font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:#D5F25A;margin:0 0 8px;">Dominant profile</div>
+      <div style="font-family:${SERIF};font-size:27px;line-height:1.1;color:#F1ECE0;margin:0 0 5px;">${esc(dom.name)}</div>
+      <div style="font-family:${SANS};font-size:14px;color:#9CACA6;margin:0;">${esc(dom.one)}</div>
+      ${hasMeta ? `<div style="border-top:1px solid rgba(213,242,90,.18);margin-top:18px;padding-top:15px;">
+        ${secsStr ? `<div style="font-family:${SANS};font-size:13px;color:#C8D3CE;margin-bottom:7px;">Secondary patterns: <span style="color:#F1ECE0;">${esc(secsStr)}</span></div>` : ""}
+        ${vit != null ? `<div style="font-family:${SANS};font-size:13px;color:#C8D3CE;">Founder Vitality Score: <span style="color:#D5F25A;font-weight:bold;">${esc(vit)}/100</span></div>` : ""}
+      </div>` : ""}
+    </td></tr></table>`;
+}
+
+function rows(pairs) {
+  const body = pairs.filter(([, v]) => v != null && v !== "").map(([k, v]) => `<tr>
+      <td style="font-family:${MONO};font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#7c8a52;padding:11px 0;vertical-align:top;width:120px;border-bottom:1px solid rgba(0,28,32,.07);">${esc(k)}</td>
+      <td style="font-family:${SANS};font-size:14px;line-height:1.5;color:#001C20;padding:11px 0;border-bottom:1px solid rgba(0,28,32,.07);">${esc(v)}</td>
+    </tr>`).join("");
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 6px;">${body}</table>`;
+}
+
+function block(label, text) {
+  return `<div style="margin:18px 0 0;">
+    <div style="font-family:${MONO};font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#7c8a52;margin:0 0 7px;">${esc(label)}</div>
+    <div style="font-family:${SANS};font-size:15px;line-height:1.6;color:#3a443f;white-space:pre-wrap;">${esc(text)}</div>
+  </div>`;
+}
+
+/* ---------- Assessment ---------- */
+export function assessmentLeadEmail(from, d) {
+  const dom = PROFILES[d.dominant_profile] || { name: profName(d.dominant_profile) || "Your profile", one: "" };
+  const secsStr = (d.secondary_profiles || []).map(profName).filter(Boolean).join(", ");
   return {
-    from,
-    to: d.email,
+    from, to: d.email,
     subject: `Your Invisible Limits profile: ${dom.name}`,
-    html: wrap(
-      h1(`Your dominant profile: ${esc(dom.name)}`) +
-      p(esc(dom.one)) +
-      secLine + vit +
-      p(`This is the map. The program is the expedition — nine weeks working on the person behind the company, so the ceiling moves with you.`) +
-      btn(`${SITE}/apply`, "Apply for the founding cohort →")
+    html: shell(
+      eyebrow("Your assessment result") +
+      h1(`${esc(d.first_name || "Here")}, here's your profile.`) +
+      resultCard(dom, secsStr, d.vitality_score) +
+      p("This is the map. The program is the expedition: nine weeks working on the person behind the company, so the ceiling moves with you.") +
+      button(`${SITE}/apply`, "Apply for the founding cohort &rarr;")
     ),
   };
 }
-function assessmentNotifyEmail(from, to, d) {
-  const secs = (d.secondary_profiles || []).map(profName);
+export function assessmentNotifyEmail(from, to, d) {
+  const secsStr = (d.secondary_profiles || []).map(profName).filter(Boolean).join(", ");
   return {
     from, to, reply_to: d.email,
-    subject: `New assessment lead — ${d.first_name || "Someone"} (${profName(d.dominant_profile)})`,
-    html: wrap(
-      h1("New assessment lead") +
-      p(`<b>${esc(d.first_name || "")}</b> · ${esc(d.email || "")}`) +
-      p(`Dominant: <b>${esc(profName(d.dominant_profile))}</b><br>Secondary: ${esc(secs.join(", ") || "—")}<br>Vitality: <b>${esc(d.vitality_score ?? "—")}/100</b>`)
+    subject: `New assessment lead: ${d.first_name || "Someone"} (${profName(d.dominant_profile) || "?"})`,
+    html: shell(
+      eyebrow("New assessment lead") +
+      h1(`${esc(d.first_name || "Someone")} took the assessment.`) +
+      rows([
+        ["Name", d.first_name],
+        ["Email", d.email],
+        ["Dominant", profName(d.dominant_profile)],
+        ["Secondary", secsStr],
+        ["Vitality", d.vitality_score != null ? `${d.vitality_score}/100` : ""],
+      ])
     ),
   };
 }
 
-/* ---- Application emails ---- */
-function applicantEmail(from, d) {
+/* ---------- Application ---------- */
+export function applicantEmail(from, d) {
   return {
-    from,
-    to: d.email,
-    subject: `Your application to the founding cohort`,
-    html: wrap(
+    from, to: d.email,
+    subject: "Your application to the founding cohort",
+    html: shell(
+      eyebrow("Application received") +
       h1(`${esc(d.first_name || "Thanks")}, your application is in.`) +
-      p(`Thibault reviews every application personally. If it's a fit, you'll hear back by email within a few days with the next step — usually a short 1:1 debrief.`) +
-      p(`In the meantime, if you haven't yet, it's worth seeing your invisible limits.`) +
-      btn(`${SITE}/assessment`, "Take the assessment →")
+      p("Thibault reviews every application personally. If it's a fit, you'll hear back by email within a few days with the next step, usually a short 1:1 debrief.") +
+      p("In the meantime, if you haven't yet, it's worth seeing your invisible limits.") +
+      button(`${SITE}/assessment`, "Take the assessment &rarr;")
     ),
   };
 }
-function applicationNotifyEmail(from, to, d) {
+export function applicationNotifyEmail(from, to, d) {
+  const name = `${d.first_name || ""} ${d.last_name || ""}`.trim();
   return {
     from, to, reply_to: d.email,
-    subject: `New cohort application — ${d.first_name || ""} ${d.last_name || ""}, ${d.company || ""}`.trim(),
-    html: wrap(
-      h1("New cohort application") +
-      p(`<b>${esc(d.first_name || "")} ${esc(d.last_name || "")}</b> · ${esc(d.email || "")}`) +
-      p(`Company: <b>${esc(d.company || "—")}</b>${d.website ? ` · ${esc(d.website)}` : ""}<br>Revenue stage: <b>${esc(d.revenue_stage || "—")}</b>`) +
-      p(`<b>Where they feel the ceiling:</b><br>${esc(d.ceiling || "—")}`) +
-      (d.why_now ? p(`<b>Why now:</b><br>${esc(d.why_now)}`) : "") +
-      (d.heard_from ? p(`Heard about us via: ${esc(d.heard_from)}`) : "")
+    subject: `New cohort application: ${name || "Someone"}${d.company ? ` (${d.company})` : ""}`,
+    html: shell(
+      eyebrow("New cohort application") +
+      h1(`${esc(name || "New applicant")}`) +
+      rows([
+        ["Email", d.email],
+        ["Company", d.company],
+        ["Website", d.website],
+        ["Revenue", d.revenue_stage],
+      ]) +
+      block("Where they feel the ceiling", d.ceiling || "") +
+      (d.why_now ? block("Why now", d.why_now) : "") +
+      (d.heard_from ? block("Heard about us via", d.heard_from) : "")
     ),
   };
 }
@@ -115,6 +173,7 @@ async function sendResend(key, msg) {
 }
 
 export default async (req) => {
+  if (req.method === "GET") return json({ ok: true, v: "emails-v2" }); // health/version probe, no send
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
   let d;
@@ -124,8 +183,7 @@ export default async (req) => {
   const FROM = process.env.FROM_EMAIL || "Founder Transformation <onboarding@resend.dev>";
   const NOTIFY = process.env.NOTIFY_EMAIL || "thibaultsagnier@gmail.com";
 
-  // Never hard-fail the client: the lead is already saved in Supabase.
-  if (!KEY) { console.warn("[notify] RESEND_API_KEY not set — skipping email"); return json({ ok: true, email: "skipped" }); }
+  if (!KEY) { console.warn("[notify] RESEND_API_KEY not set — skipping email"); return json({ ok: true, email: "skipped", v: "emails-v2" }); }
   if (!d.email) return json({ error: "missing email" }, 400);
 
   let messages;
@@ -137,5 +195,5 @@ export default async (req) => {
   const failed = results.filter(r => r.status === "rejected");
   failed.forEach(f => console.error("[notify] send failed:", f.reason?.message || f.reason));
 
-  return json({ ok: failed.length === 0, sent: results.length - failed.length, failed: failed.length });
+  return json({ ok: failed.length === 0, sent: results.length - failed.length, failed: failed.length, v: "emails-v2" });
 };
