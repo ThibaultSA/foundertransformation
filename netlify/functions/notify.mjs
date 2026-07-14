@@ -43,8 +43,8 @@ function shell(inner) {
       <tr><td style="background:#001C20;border-radius:18px 18px 0 0;border-bottom:2px solid #D5F25A;padding:24px 34px;">
         <span style="font-family:${SERIF};font-size:19px;color:#F1ECE0;letter-spacing:.2px;">Founder <span style="color:#8b9a94;">Transformation</span></span>
       </td></tr>
-      <tr><td style="background:#F1ECE0;padding:40px 34px 36px;">${inner}</td></tr>
-      <tr><td style="background:#F1ECE0;border-radius:0 0 18px 18px;border-top:1px solid rgba(0,28,32,.08);padding:22px 34px;text-align:center;">
+      <tr><td style="background:#ffffff;padding:40px 34px 36px;">${inner}</td></tr>
+      <tr><td style="background:#ffffff;border-radius:0 0 18px 18px;border-top:1px solid rgba(0,28,32,.08);padding:22px 34px;text-align:center;">
         <span style="font-family:${SANS};font-size:12px;color:#9aa39e;">Founder Transformation &middot; <a href="${SITE}" style="color:#6b746f;text-decoration:none;">foundertransformation.co</a></span>
       </td></tr>
     </table>
@@ -173,7 +173,7 @@ async function sendResend(key, msg) {
 }
 
 export default async (req) => {
-  if (req.method === "GET") return json({ ok: true, v: "emails-v2" }); // health/version probe, no send
+  if (req.method === "GET") return json({ ok: true, v: "emails-v3" }); // health/version probe, no send
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
   let d;
@@ -183,7 +183,7 @@ export default async (req) => {
   const FROM = process.env.FROM_EMAIL || "Founder Transformation <onboarding@resend.dev>";
   const NOTIFY = process.env.NOTIFY_EMAIL || "thibaultsagnier@gmail.com";
 
-  if (!KEY) { console.warn("[notify] RESEND_API_KEY not set — skipping email"); return json({ ok: true, email: "skipped", v: "emails-v2" }); }
+  if (!KEY) { console.warn("[notify] RESEND_API_KEY not set — skipping email"); return json({ ok: true, email: "skipped", v: "emails-v3" }); }
   if (!d.email) return json({ error: "missing email" }, 400);
 
   let messages;
@@ -195,5 +195,5 @@ export default async (req) => {
   const failed = results.filter(r => r.status === "rejected");
   failed.forEach(f => console.error("[notify] send failed:", f.reason?.message || f.reason));
 
-  return json({ ok: failed.length === 0, sent: results.length - failed.length, failed: failed.length, v: "emails-v2" });
+  return json({ ok: failed.length === 0, sent: results.length - failed.length, failed: failed.length, v: "emails-v3" });
 };
