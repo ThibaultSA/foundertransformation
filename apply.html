@@ -221,6 +221,15 @@ async function saveApplication(payload){
   }catch(err){ console.error('[apply] save failed', err); }
 }
 
+async function sendEmails(payload){
+  try{
+    await fetch('/.netlify/functions/notify',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+  }catch(err){ console.warn('[apply] email trigger failed', err); }
+}
+
 el('applyForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const first=el('first').value.trim();
@@ -247,6 +256,7 @@ el('applyForm').addEventListener('submit', async (e)=>{
     source:'founding-cohort-application', created_at:new Date().toISOString()
   };
   await saveApplication(payload);
+  sendEmails({type:'application', ...payload});
 
   el('successHead').textContent = first ? first+', application received.' : 'Application received.';
   el('form-view').style.display='none';

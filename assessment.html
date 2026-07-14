@@ -459,6 +459,16 @@ async function saveLead(payload){
   }catch(err){ console.error('[assessment] save failed', err); }
 }
 
+/* ---- Trigger transactional emails (Netlify function → Resend) ---- */
+async function sendEmails(payload){
+  try{
+    await fetch('/.netlify/functions/notify',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+  }catch(err){ console.warn('[assessment] email trigger failed', err); }
+}
+
 /* ---- Reveal flow ---- */
 el('revealBtn').onclick=async ()=>{
   const name=el('fname').value.trim();
@@ -480,6 +490,7 @@ el('revealBtn').onclick=async ()=>{
     created_at:new Date().toISOString()
   };
   await saveLead(payload);
+  sendEmails({type:'assessment', ...payload});
   show('res');
 };
 
